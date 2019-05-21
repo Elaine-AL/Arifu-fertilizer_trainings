@@ -1,0 +1,67 @@
+---
+title: "Fertilizer training analysis"
+author: "Elaine A."
+date: "May 21, 2019"
+output: html_document
+---
+
+```{r}
+#load the necessary packages
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+```
+
+```{r}
+#read the file into R dataframe
+fertilizer = read.csv("C:/Users/Elaine/Documents/fertilizer/challenge 2 dataset (fertilizer).csv", header = TRUE)
+View(fertilizer)
+```
+
+```{r}
+# clean : change the date column to a valid date format
+fertilizer$created_at = parse_date_time(fertilizer$created_at, orders = "mdy HM")
+View(fertilizer)
+```
+
+```{r}
+#add the day of the week column to the dataset
+week_day_fert = wday(fertilizer$created_at, label = TRUE, abbr = FALSE, week_start = 7)
+fertilizer = cbind(fertilizer, week_day_fert)
+View(fertilizer)
+```
+```{r}
+#view the structure and summary of the new dataset
+str(fertilizer)
+summary(fertilizer)
+
+```
+
+```{r}
+# *ANALYSIS*
+training_learners = fertilizer %>% group_by(variation_code) %>% summarise(n_distinct(learner_id))
+training_learners
+#
+#it can be seen that the Thumb variation (fact based training) was more popular among learners during the experiment with a count of 261 learners than that of narration
+```
+
+```{r}
+training = fertilizer %>% group_by(variation_code) %>% summarise(length(learner_id))
+training
+#
+# it can also be seen that seen that the Thumb variation was more popular with a higher count of interactions during the experiment, that is, it was used 3,718 times by the learners as compared to the narrative type training.
+
+```
+
+```{r}
+#lets plot the usage of the variation during the week
+
+fert_plot = ggplot(data = fertilizer, mapping = aes(x = week_day_fert, fill = variation_code)) + labs(title = "Number of variations during the week") + geom_bar(stat = "count", position = position_dodge())
+
+fert_plot
+# it can be seen when during the day when there was most interaction (Thursday), the Thumb variation was mostly used, hence it is the most popular.
+```
+
+
+THE END!
+
